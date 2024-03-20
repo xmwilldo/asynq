@@ -11,9 +11,10 @@ import (
 	"time"
 
 	"github.com/redis/go-redis/v9"
+	"github.com/spf13/cast"
+
 	"github.com/hibiken/asynq/internal/base"
 	"github.com/hibiken/asynq/internal/errors"
-	"github.com/spf13/cast"
 )
 
 // AllQueues returns a list of all queue names.
@@ -373,7 +374,7 @@ func (r *RDB) HistoricalStats(qname string, n int) ([]*DailyStats, error) {
 		return nil, errors.E(op, errors.NotFound, &errors.QueueNotFoundError{Queue: qname})
 	}
 	const day = 24 * time.Hour
-	now := r.clock.Now().UTC()
+	now := r.clock.Now()
 	var days []time.Time
 	var keys []string
 	for i := 0; i < n; i++ {

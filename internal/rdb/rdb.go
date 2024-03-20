@@ -12,11 +12,12 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/redis/go-redis/v9"
+	"github.com/spf13/cast"
+
 	"github.com/hibiken/asynq/internal/base"
 	"github.com/hibiken/asynq/internal/errors"
 	"github.com/hibiken/asynq/internal/timeutil"
-	"github.com/redis/go-redis/v9"
-	"github.com/spf13/cast"
 )
 
 const statsTTL = 90 * 24 * time.Hour // 90 days
@@ -1359,7 +1360,7 @@ func (r *RDB) WriteServerState(info *base.ServerInfo, workers []*base.WorkerInfo
 	if err != nil {
 		return errors.E(op, errors.Internal, fmt.Sprintf("cannot encode server info: %v", err))
 	}
-	exp := r.clock.Now().Add(ttl).UTC()
+	exp := r.clock.Now().Add(ttl)
 	args := []interface{}{ttl.Seconds(), bytes} // args to the lua script
 	for _, w := range workers {
 		bytes, err := base.EncodeWorkerInfo(w)
@@ -1424,7 +1425,7 @@ func (r *RDB) WriteSchedulerEntries(schedulerID string, entries []*base.Schedule
 		}
 		args = append(args, bytes)
 	}
-	exp := r.clock.Now().Add(ttl).UTC()
+	exp := r.clock.Now().Add(ttl)
 	key := base.SchedulerEntriesKey(schedulerID)
 	err := r.client.ZAdd(ctx, base.AllSchedulers, redis.Z{Score: float64(exp.Unix()), Member: key}).Err()
 	if err != nil {

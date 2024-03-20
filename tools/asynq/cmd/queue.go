@@ -180,7 +180,7 @@ func printQueueInfo(info *asynq.QueueInfo) {
 		},
 	)
 	fmt.Println()
-	bold.Printf("Daily Stats %s UTC\n", info.Timestamp.UTC().Format("2006-01-02"))
+	bold.Printf("Daily Stats %s UTC\n", info.Timestamp.Format("2006-01-02"))
 	printTable(
 		[]string{"processed", "failed", "error rate"},
 		func(w io.Writer, tmpl string) {
